@@ -1,0 +1,5 @@
+- [x] Update factories array to use ch2o instead of pm25 with sample values (1.5, 2.8, 3.2, 2.5)
+- [x] Rename getColorByPM to getColorByCH2O and adjust thresholds for CH2O levels
+- [x] Update loadMapData to use getColorByCH2O and bindPopup with CH2O ppb
+- [x] Modify generateInsightsAndAlerts to use ch2o, update texts to CH2O ppb, and adjust thresholds
+- [x] Update alert messages to reference CH2O ppb

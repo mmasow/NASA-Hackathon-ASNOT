@@ -1,0 +1,8 @@
+- Replace HTML for pollution card in index.html with the one from Dummy.html
+- Replace HTML for tempo card in index.html
+- Replace HTML for aqi card in index.html
+- Update script: remove old chart initialization for pollution, tempo, aqi
+- Update script: add new chart initialization from Dummy.html
+- Update script: add fetch functions (fetchTEMPOData, fetchPollutionData, fetchAQIData, loadDOASData)
+- Keep weather chart, map, and insights unchanged
+- Test the changes by opening index.html in browser

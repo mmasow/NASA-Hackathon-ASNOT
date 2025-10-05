@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AQI and Environmental Factors Analysis</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #1e3c72, #2a5298);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2em;
+      min-height: 100vh;
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 0.5em;
+    }
+
+    .charts-container {
+      display: flex;
+      flex-direction: column;
+      gap: 2em;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    @media (min-width: 900px) {
+      .charts-container {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+    }
+
+    canvas {
+      background-color: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 1em;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .note {
+      margin-top: 0.8em;
+      font-size: 1em;
+      color: #cce7ff;
+      text-align: center;
+      max-width: 600px;
+    }
+
+    table {
+      margin-top: 2em;
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 900px;
+      background-color: rgba(255,255,255,0.05);
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: rgba(255,255,255,0.1);
+    }
+
+    .low { color: #66bb6a; font-weight: bold; }
+    .moderate { color: #ffa726; font-weight: bold; }
+    .high { color: #ef5350; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <button onclick="window.location.href='index.html'" style="position: absolute; top: 20px; left: 20px; padding: 10px 20px; background: linear-gradient(to right, #1e3c72, #2a5298); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; z-index: 10;">COMPAS</button>
+  <h1>Air Quality Index (AQI) and Environmental Factors</h1>
+
+  <div class="charts-container">
+    <!-- Chart 1: AQI Bar Chart -->
+    <div>
+      <h2>AQI Levels by Location</h2>
+      <canvas id="pollutionChart"></canvas>
+      <div class="note">
+        This bar chart shows <strong>Air Quality Index (AQI)</strong> levels per location.<br>
+        The colors show the air quality category:
+        <strong style="color:#66bb6a;">Low</strong>,
+        <strong style="color:#ffa726;">Moderate</strong>,
+        <strong style="color:#ef5350;">High</strong>.
+      </div>
+    </div>
+
+    <!-- Chart 2: Clustering Bubble Chart -->
+    <div>
+      <h2>Temperature vs Wind (Size = Rain)</h2>
+      <canvas id="clusteringChart"></canvas>
+      <div class="note">
+        Each bubble represents a location.<br>
+        <strong>X-axis:</strong> Temperature | <strong>Y-axis:</strong> Wind Speed | 
+        <strong>Size:</strong> Rainfall | <strong>Color:</strong> AQI Cluster
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <h2>Environmental Data Table</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Location</th>
+        <th>AQI</th>
+        <th>Category</th>
+        <th>Temperature (°C)</th>
+        <th>Wind (km/h)</th>
+        <th>Rain (mm)</th>
+        <th>Cloudiness (%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Los Angeles Refinery</td>
+        <td>180</td>
+        <td class="high">High</td>
+        <td>33</td>
+        <td>8</td>
+        <td>0</td>
+        <td>60</td>
+      </tr>
+      <tr>
+        <td>San Francisco Plant</td>
+        <td>90</td>
+        <td class="moderate">Moderate</td>
+        <td>22</td>
+        <td>12</td>
+        <td>3</td>
+        <td>40</td>
+      </tr>
+      <tr>
+        <td>Bakersfield Chemical Co.</td>
+        <td>45</td>
+        <td class="low">Low</td>
+        <td>18</td>
+        <td>15</td>
+        <td>6</td>
+        <td>30</td>
+      </tr>
+      <tr>
+        <td>Port of Long Beach Hub</td>
+        <td>110</td>
+        <td class="moderate">Moderate</td>
+        <td>25</td>
+        <td>10</td>
+        <td>2</td>
+        <td>50</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Chart.js Script -->
+  <script>
+    const categories = ["Low", "Moderate", "High"];
+    const colors = ["#66bb6a", "#ffa726", "#ef5350"];
+
+    // Dataset
+    const dataPoints = [
+      { location: "Los Angeles Refinery", aqi: 180, label: 2, temp: 33, wind: 8, rain: 0, cloud: 60 },
+      { location: "San Francisco Plant", aqi: 90, label: 1, temp: 22, wind: 12, rain: 3, cloud: 40 },
+      { location: "Bakersfield Chemical Co.", aqi: 45, label: 0, temp: 18, wind: 15, rain: 6, cloud: 30 },
+      { location: "Port of Long Beach Hub", aqi: 110, label: 1, temp: 25, wind: 10, rain: 2, cloud: 50 }
+    ];
+
+    // Chart 1: AQI Bar Chart
+    const ctx1 = document.getElementById('pollutionChart').getContext('2d');
+    new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: dataPoints.map(p => p.location),
+        datasets: [{
+          label: 'AQI',
+          data: dataPoints.map(p => p.aqi),
+          backgroundColor: dataPoints.map(p => colors[p.label]),
+          borderColor: 'white',
+          borderWidth: 1,
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const p = dataPoints[ctx.dataIndex];
+                return `${p.location}: AQI ${p.aqi} - ${categories[p.label]} Pollution`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: 'white' },
+            title: { display: true, text: 'Location', color: 'white' },
+            grid: { display: false }
+          },
+          y: {
+            min: 0,
+            max: 250,
+            ticks: { color: 'white' },
+            title: { display: true, text: 'AQI Level', color: 'white' },
+            grid: { color: 'rgba(255,255,255,0.1)' }
+          }
+        }
+      }
+    });
+
+    // Chart 2: Bubble Chart - Temperature vs Wind
+    const ctx2 = document.getElementById('clusteringChart').getContext('2d');
+    new Chart(ctx2, {
+      type: 'bubble',
+      data: {
+        datasets: dataPoints.map((p) => ({
+          label: p.location,
+          data: [{ x: p.temp, y: p.wind, r: Math.max(5, p.rain + 5) }],
+          backgroundColor: colors[p.label],
+          borderColor: 'white',
+          borderWidth: 1
+        }))
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const p = dataPoints[ctx.dataIndex];
+                return [
+                  `${p.location}`,
+                  `AQI: ${p.aqi} (${categories[p.label]})`,
+                  `Temp: ${p.temp}°C`,
+                  `Wind: ${p.wind} km/h`,
+                  `Rain: ${p.rain} mm`,
+                  `Cloud: ${p.cloud}%`
+                ];
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'AQI levels', color: 'white' },
+            ticks: { color: 'white' },
+            grid: { color: 'rgba(255,255,255,0.1)' }
+          },
+          y: {
+            title: { display: true, text: 'Wind Speed (km/h)/ Rain / Temperature (°C)  ', color: 'white' },
+            ticks: { color: 'white' },
+            grid: { color: 'rgba(255,255,255,0.1)' }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
