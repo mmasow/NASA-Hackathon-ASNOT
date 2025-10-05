@@ -41,9 +41,9 @@ The COMPAS platform represents a critical step forward in environmental governan
 
 Developed by
 
-ASNOT: SIPHO MAKUBALO
-	    NHLANHLA SIMPHIWE CUMBANE
-	    ORATILE MONNAPULA (MMASOW)
+ASNOT: SIPHO MAKUBALO, 
+	    NHLANHLA SIMPHIWE CUMBANE, 
+	    ORATILE MONNAPULA (MMASOW), 
 	    TSHEPO PHIRI
 
 Together, we can make clean air a right — not a privilege.
